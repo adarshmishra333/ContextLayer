@@ -1,4 +1,5 @@
 // ContextLayer Express.js Backend
+require('dotenv').config();
 const express = require('express');
 const { createClient } = require('@supabase/supabase-js');
 const axios = require('axios');
