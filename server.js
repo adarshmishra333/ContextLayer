@@ -352,9 +352,29 @@ async function processSlackMessage(payload, responseUrl) {
 }
 
 // Health check endpoint
-app.get('/health', (req, res) => {
-  res.json({ status: 'healthy', timestamp: new Date().toISOString() });
+// Health check endpoint (with Supabase DB check)
+app.get('/health', async (req, res) => {
+  try {
+    const { error } = await supabase
+      .from('slack_clickup_mappings')
+      .select('*')
+      .limit(1);
+
+    res.json({
+      status: 'healthy',
+      timestamp: new Date().toISOString(),
+      database: error ? 'disconnected' : 'connected'
+    });
+  } catch (err) {
+    res.status(500).json({
+      status: 'unhealthy',
+      timestamp: new Date().toISOString(),
+      database: 'disconnected',
+      error: err.message
+    });
+  }
 });
+
 
 // Get mapping history (for dashboard)
 app.get('/api/mappings', async (req, res) => {
