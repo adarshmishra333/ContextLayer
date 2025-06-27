@@ -219,34 +219,31 @@ class ClickUpService {
 // Main endpoint for Slack message actions
 app.post('/slack/message-action', verifySlackRequest, async (req, res) => {
   let payload;
+  const start = Date.now();
 
   try {
-    // ✅ Safer parsing
     payload = JSON.parse(req.body.payload);
   } catch (error) {
-    console.error('Invalid payload:', req.body);
+    console.error('❌ Invalid Slack payload:', req.body);
     return res.status(400).send('Invalid Slack payload');
   }
 
   try {
     const { response_url } = payload;
 
-    // ✅ Measure how fast we respond to Slack
-    console.time("Slack Response");
+    console.log("⏱️ Responding to Slack immediately...");
 
-    // ✅ IMMEDIATE REPLY to Slack to prevent error popup
     res.status(200).json({
       text: "🔄 Creating ClickUp task with full context...",
       response_type: "ephemeral"
     });
 
-    console.timeEnd("Slack Response"); // ⏱️ End timing log
+    console.log("✅ Slack response sent in", Date.now() - start, "ms");
 
-    // 🧠 ASYNC WORK
+    // Process the rest in the background
     processSlackMessage(payload, response_url).catch(console.error);
-
   } catch (error) {
-    console.error('Message action error:', error);
+    console.error('❌ Slack message-action route error:', error);
     res.status(500).send('Internal server error');
   }
 });
