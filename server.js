@@ -219,22 +219,21 @@ class ClickUpService {
 // Main endpoint for Slack message actions
 app.post('/slack/message-action', verifySlackRequest, async (req, res) => {
   try {
-    // Parse Slack payload
     const payload = JSON.parse(req.body.payload);
-    const { message, channel, user, team, response_url } = payload;
-    
-    // Quick response to Slack
+    const { response_url } = payload;
+
+    // ✅ IMMEDIATE REPLY to avoid "sorry didn't work"
     res.status(200).json({
       text: "🔄 Creating ClickUp task with full context...",
       response_type: "ephemeral"
     });
-    
-    // Process async
+
+    // 🧠 ASYNC TASK: do the actual processing later
     processSlackMessage(payload, response_url).catch(console.error);
-    
+
   } catch (error) {
-    console.error('Error processing message action:', error);
-    res.status(500).json({ error: 'Internal server error' });
+    console.error('Message action error:', error);
+    res.status(500).send('Internal server error');
   }
 });
 
