@@ -1,4 +1,5 @@
 // ContextLayer Express.js Backend
+const bodyParser = require('body-parser');
 require('dotenv').config();
 const express = require('express');
 const { createClient } = require('@supabase/supabase-js');
@@ -10,9 +11,8 @@ const rawBodyBuffer = (req, res, buf, encoding) => {
   req.rawBody = buf.toString(encoding || 'utf8');
 };
 
-app.use(express.json({ verify: rawBodyBuffer }));
-
-app.use(express.urlencoded({ extended: true, verify: rawBodyBuffer }));
+app.use(bodyParser.urlencoded({ extended: true, verify: rawBodyBuffer }));
+app.use(bodyParser.json({ verify: rawBodyBuffer }));
 
 // Initialize Supabase
 const supabase = createClient(
@@ -231,11 +231,16 @@ app.post('/slack/message-action', verifySlackRequest, async (req, res) => {
   try {
     const { response_url } = payload;
 
+    // ✅ Measure how fast we respond to Slack
+    console.time("Slack Response");
+
     // ✅ IMMEDIATE REPLY to Slack to prevent error popup
     res.status(200).json({
       text: "🔄 Creating ClickUp task with full context...",
       response_type: "ephemeral"
     });
+
+    console.timeEnd("Slack Response"); // ⏱️ End timing log
 
     // 🧠 ASYNC WORK
     processSlackMessage(payload, response_url).catch(console.error);
