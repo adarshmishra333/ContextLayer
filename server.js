@@ -292,6 +292,9 @@ async function processSlackMessage(payload, responseUrl) {
         channel.id,
         message.thread_ts
       );
+      console.log('🧵 Total replies fetched:', threadMessages.length);
+      console.log('🧵 Thread messages preview:', threadMessages.map(m => `${m.user}: ${m.text}`));
+
     }
     
     // Create ClickUp task
