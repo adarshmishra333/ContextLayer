@@ -12,7 +12,7 @@ const rawBodyBuffer = (req, res, buf, encoding) => {
 
 app.use(express.json({ verify: rawBodyBuffer }));
 
-app.use(express.urlencoded({ extended: true }));
+app.use(express.urlencoded({ extended: true, verify: rawBodyBuffer }));
 
 // Initialize Supabase
 const supabase = createClient(
