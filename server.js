@@ -6,7 +6,12 @@ const axios = require('axios');
 const crypto = require('crypto');
 
 const app = express();
-app.use(express.json());
+const rawBodyBuffer = (req, res, buf, encoding) => {
+  req.rawBody = buf.toString(encoding || 'utf8');
+};
+
+app.use(express.json({ verify: rawBodyBuffer }));
+
 app.use(express.urlencoded({ extended: true }));
 
 // Initialize Supabase
