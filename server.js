@@ -254,6 +254,9 @@ async function processSlackMessage(payload, responseUrl) {
   
   try {
     const { message, channel, user, team } = payload;
+    console.log('🔍 message.ts:', message.ts);
+    console.log('📌 message.thread_ts:', message.thread_ts);
+
     
     // Get workspace configuration
     const workspace = await DatabaseService.getWorkspace(team.id);
