@@ -218,17 +218,26 @@ class ClickUpService {
 
 // Main endpoint for Slack message actions
 app.post('/slack/message-action', verifySlackRequest, async (req, res) => {
+  let payload;
+
   try {
-    const payload = JSON.parse(req.body.payload);
+    // ✅ Safer parsing
+    payload = JSON.parse(req.body.payload);
+  } catch (error) {
+    console.error('Invalid payload:', req.body);
+    return res.status(400).send('Invalid Slack payload');
+  }
+
+  try {
     const { response_url } = payload;
 
-    // ✅ IMMEDIATE REPLY to avoid "sorry didn't work"
+    // ✅ IMMEDIATE REPLY to Slack to prevent error popup
     res.status(200).json({
       text: "🔄 Creating ClickUp task with full context...",
       response_type: "ephemeral"
     });
 
-    // 🧠 ASYNC TASK: do the actual processing later
+    // 🧠 ASYNC WORK
     processSlackMessage(payload, response_url).catch(console.error);
 
   } catch (error) {
@@ -236,6 +245,7 @@ app.post('/slack/message-action', verifySlackRequest, async (req, res) => {
     res.status(500).send('Internal server error');
   }
 });
+
 
 async function processSlackMessage(payload, responseUrl) {
   let mapping = null;
