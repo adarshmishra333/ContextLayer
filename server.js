@@ -24,7 +24,8 @@ const supabase = createClient(
 const verifySlackRequest = (req, res, next) => {
   const signature = req.headers['x-slack-signature'];
   const timestamp = req.headers['x-slack-request-timestamp'];
-  const body = JSON.stringify(req.body);
+  const body = req.rawBody; // instead of JSON.stringify(req.body)
+
   
   // Check timestamp (prevent replay attacks)
   if (Math.abs(Date.now() / 1000 - timestamp) > 300) {
